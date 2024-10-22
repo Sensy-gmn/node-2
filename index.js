@@ -12,20 +12,21 @@ import {
 
 const app = express();
 const PORT = process.env.PORT;
-// const API_BASE_URL = "https://jsonplaceholder.typicode.com";
 
 app.use(cors());
 app.use(express.json());
 
+// --------------------------------- [ HOME ] --------------------------------- //
 app.get("/", (req, res) => {
     return res.json({ message: "first endpoint, Hello !" });
 });
 
+// --------------------------------- [ POSTS ] --------------------------------- //
+
+// GET all posts -----------------------------
 app.get("/posts", (req, res) => {
     return res.status(200).json(DataPosts);
 });
-
-// --------------------------------- [ POSTS ] --------------------------------- //
 
 // GET posts by id ---------------------------
 app.get("/posts/:id", (req, res) => {
@@ -89,6 +90,7 @@ app.delete("/posts/:id", (req, res) => {
     }
 });
 
+// --------------------------------- [ SERVER RUN ] --------------------------------- //
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
 });
