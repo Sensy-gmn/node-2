@@ -1,54 +1,48 @@
-import axios from "axios";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import DataPosts from "./data.js";
 
 const app = express();
 const PORT = process.env.PORT;
-const API_BASE_URL = "https://jsonplaceholder.typicode.com";
-const POSTS_ENDPOINT = "/posts";
+// const API_BASE_URL = "https://jsonplaceholder.typicode.com";
 
 app.use(cors());
 
 app.get("/", (req, res) => {
-    return res.json({ message: "Hello :)" });
+    return res.json({ message: "first endpoint, Hello !" });
 });
 
 app.get("/posts", (req, res) => {
-    axios
-        .get(`${API_BASE_URL}${POSTS_ENDPOINT}`)
-        .then((response) => {
-            return res.status(200).json(response.data);
-        })
-        .catch((error) => {
-            return res.status(500).json({ error: error.message });
-        });
+    return res.status(200).json(DataPosts);
 });
 
 // POSTS BY USER ID ---------------------------------------------------
-app.get("/posts/:userId", (req, res) => {
+app.get("/posts/user/:userId", (req, res) => {
     const { userId } = req.params;
-    axios
-        .get(`${API_BASE_URL}${POSTS_ENDPOINT}?userId=${userId}`)
-        .then((response) => {
-            return res.status(200).json(response.data);
-        })
-        .catch((error) => {
-            return res.status(500).json({ error: error.message });
-        });
+    let postsToFind = DataPosts.filter(
+        (post) => post.userId === parseInt(userId)
+    );
+
+    if (postsToFind.length > 0) {
+        return res.status(200).json(postsToFind);
+    } else {
+        return res
+            .status(404)
+            .json({ message: `Aucun post pour l'utilisateur ${userId}` });
+    }
 });
 
 // POSTS BY ID ---------------------------------------------------
 app.get("/posts/:id", (req, res) => {
     const { id } = req.params;
-    axios
-        .get(`${API_BASE_URL}${POSTS_ENDPOINT}/${id}`)
-        .then((response) => {
-            return res.status(200).json(response.data);
-        })
-        .catch((error) => {
-            return res.status(500).json({ error: error.message });
-        });
+    let postToFind = DataPosts.find((post) => post.id === parseInt(id));
+
+    if (postToFind) {
+        return res.status(200).json(postToFind);
+    } else {
+        return res.status(404).json({ message: `Aucun post pour l'id ${id}` });
+    }
 });
 
 app.listen(PORT, () => {
