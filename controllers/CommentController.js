@@ -1,4 +1,5 @@
 import Comment from "../Models/Comment.js";
+import Post from "../Models/Posts.js";
 import CommentSchema from "../Validator/CommentValidator.js";
 
 export const GetAllComments = async (req, res) => {
@@ -40,34 +41,26 @@ export const GetCommentByUserId = async (req, res) => {
     }
 };
 
-export const GetCommentByPostId = async (req, res) => {
-    let { id } = req.params;
-    try {
-        const comments = await Comment.find({ postId: id });
-        if (!comments) {
-            return res.status(404).json({
-                message: `Aucun commentaire trouvé pour le post avec l'id ${id}`,
-            });
-        }
-        return res.status(200).json(comments);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
 export const CreateComment = async (req, res) => {
-    let { author, content, postId } = req.body;
+    let { author, content, post } = req.body;
     try {
         const { error, value } = CommentSchema.validate({
             author,
             content,
-            postId,
+            post,
         });
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
         }
 
         const newComment = await Comment.create(value);
+
+        await Post.findByIdAndUpdate(
+            post,
+            { $push: { comments: newComment._id } },
+            { new: true }
+        );
+
         return res.status(201).json(newComment);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -76,12 +69,12 @@ export const CreateComment = async (req, res) => {
 
 export const UpdateComment = async (req, res) => {
     let { id } = req.params;
-    let { author, content, postId } = req.body;
+    let { author, content, post } = req.body;
     try {
         const { error, value } = CommentSchema.validate({
             author,
             content,
-            postId,
+            post,
         });
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
@@ -110,6 +103,13 @@ export const DeleteComment = async (req, res) => {
                 message: `Aucun commentaire trouvé pour l'id ${id}`,
             });
         }
+
+        await Post.findByIdAndUpdate(
+            deletedComment.post,
+            { $pull: { comments: id } },
+            { new: true }
+        );
+
         return res
             .status(200)
             .json({ message: "Commentaire supprimé avec succès" });

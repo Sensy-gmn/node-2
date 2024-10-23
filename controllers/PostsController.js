@@ -3,7 +3,7 @@ import PostSchema from "../Validator/PostValidator.js";
 
 export const GetAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find();
+        const posts = await Post.find().populate("comments").populate("userId");
         return res.status(200).json(posts);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -14,7 +14,7 @@ export const GetPostByUserId = async (req, res) => {
     let { id } = req.params;
 
     try {
-        const posts = await Post.find({ userId: id });
+        const posts = await Post.find({ userId: id }).populate("userId");
 
         if (!posts) {
             return res.status(404).json({
