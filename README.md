@@ -1,122 +1,71 @@
-# Blog API
+## Project Structure
 
-## Posts
+The project is organized into the following main directories:
 
-### Get All Posts
-GET /posts
-Retrieves all posts from the database.
+- `controllers/`: Contains the logic for handling requests and responses
+- `models/`: Defines the data models using Mongoose schemas
+- `routes/`: Defines the API routes and links them to the appropriate controllers
 
-### Get Post by ID
-GET /posts/:id
-Retrieves a specific post by its ID.
+## API Endpoints
 
-### Get Posts by User ID
-GET /posts/specificUser/:id
-Retrieves all posts created by a specific user.
+### Users
 
-### Create Post
-POST /posts
-Creates a new post.
-Body:
-{
-  "title": "string",
-  "body": "string",
-  "userId": "string"
-}
+- `GET /users`: Get all users
+- `GET /users/:id`: Get a user by ID
+- `POST /users`: Create a new user
+- `PUT /users/:id`: Update a user
+- `DELETE /users/:id`: Delete a user
 
-### Update Post
-PUT /posts/:id
-Updates an existing post.
-Body:
-{
-  "title": "string",
-  "body": "string",
-  "userId": "string"
-}
+### Posts
 
-### Delete Post
-DELETE /posts/:id
-Deletes a specific post by its ID.
+- `GET /posts`: Get all posts
+- `GET /posts/:id`: Get a post by ID
+- `GET /posts/specificUser/:id`: Get posts by user ID
+- `POST /posts`: Create a new post
+- `PUT /posts/:id`: Update a post
+- `DELETE /posts/:id`: Delete a post
 
-## Comments
+### Comments
 
-### Get All Comments
-GET /comments
-Retrieves all comments from the database.
-
-### Get Comment by ID
-GET /comments/:id
-Retrieves a specific comment by its ID.
-
-### Get Comments by User ID
-GET /comments/user/:id
-Retrieves all comments made by a specific user.
-
-### Get Comments by Post ID
-GET /comments/forPost/:id
-Retrieves all comments for a specific post.
-
-### Create Comment
-POST /comments
-Creates a new comment.
-Body:
-{
-  "author": "string",
-  "content": "string",
-  "postId": "string"
-}
-
-### Update Comment
-PUT /comments/:id
-Updates an existing comment.
-Body:
-{
-  "author": "string",
-  "content": "string"
-}
-
-### Delete Comment
-DELETE /comments/:id
-Deletes a specific comment by its ID.
-
-## Users
-
-### Get All Users
-GET /users
-Retrieves all users from the database.
-
-### Get User by ID
-GET /users/:id
-Retrieves a specific user by their ID.
-
-### Create User
-POST /users
-Creates a new user.
-Body:
-{
-  "first_name": "string",
-  "last_name": "string",
-  "email": "string",
-  "password": "string",
-  "age": number
-}
-
-### Update User
-PUT /users/:id
-Updates an existing user.
-Body:
-{
-  "first_name": "string",
-  "last_name": "string",
-  "email": "string",
-  "password": "string",
-  "age": number
-}
-
-### Delete User
-DELETE /users/:id
-Deletes a specific user by their ID.
+- `GET /comments`: Get all comments
+- `GET /comments/:id`: Get a comment by ID
+- `GET /comments/user/:id`: Get comments by user ID
+- `GET /comments/forPost/:id`: Get comments for a specific post
+- `POST /comments`: Create a new comment
+- `PUT /comments/:id`: Update a comment
+- `DELETE /comments/:id`: Delete a comment
 
 ## Models
 
-### Post Model
+### User
+
+```
+const UserSchema = new Schema({
+    first_name: { type: String, required: true },
+    last_name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+
+    age: { type: Number, required: true },
+})
+```
+
+### Post 
+
+```
+const PostSchema = new Schema({
+    title: { type: String, required: true },
+    body: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+});
+```
+
+### Comment
+
+```
+const CommentSchema = new Schema({
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    content: { type: String, required: true },
+    postId: { type: Schema.Types.ObjectId, ref: "Post", required: true },
+});
+```
