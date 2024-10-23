@@ -1,4 +1,5 @@
 import Comment from "../Models/Comment.js";
+import CommentSchema from "../Validator/CommentValidator.js";
 
 export const GetAllComments = async (req, res) => {
     try {
@@ -57,12 +58,16 @@ export const GetCommentByPostId = async (req, res) => {
 export const CreateComment = async (req, res) => {
     let { author, content, postId } = req.body;
     try {
-        if (!author || !content || !postId) {
-            return res.status(400).json({
-                message: "Les champs author et content sont requis.",
-            });
+        const { error, value } = CommentSchema.validate({
+            author,
+            content,
+            postId,
+        });
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
         }
-        const newComment = await Comment.create({ author, content, postId });
+
+        const newComment = await Comment.create(value);
         return res.status(201).json(newComment);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -71,13 +76,20 @@ export const CreateComment = async (req, res) => {
 
 export const UpdateComment = async (req, res) => {
     let { id } = req.params;
-    let { author, content } = req.body;
+    let { author, content, postId } = req.body;
     try {
-        const updatedComment = await Comment.findByIdAndUpdate(
-            id,
-            { author, content },
-            { new: true }
-        );
+        const { error, value } = CommentSchema.validate({
+            author,
+            content,
+            postId,
+        });
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
+
+        const updatedComment = await Comment.findByIdAndUpdate(id, value, {
+            new: true,
+        });
         if (!updatedComment) {
             return res.status(404).json({
                 message: `Aucun commentaire trouvé pour l'id ${id}`,

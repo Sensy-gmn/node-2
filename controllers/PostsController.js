@@ -1,4 +1,5 @@
 import Post from "../Models/Posts.js";
+import PostSchema from "../Validator/PostValidator.js";
 
 export const GetAllPosts = async (req, res) => {
     try {
@@ -47,12 +48,12 @@ export const CreatePost = async (req, res) => {
     let { title, body, userId } = req.body;
 
     try {
-        if (!body || !title || !userId) {
-            return res.status(400).json({
-                message: "Le champ title, body et userId sont requis.",
-            });
+        const { error, value } = PostSchema.validate({ title, body, userId });
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
         }
-        const newPost = await Post.create({ title, body, userId });
+
+        const newPost = await Post.create(value);
         return res.status(201).json(newPost);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -64,11 +65,19 @@ export const UpdatePost = async (req, res) => {
     let { title, body, userId } = req.body;
 
     try {
-        const post = await Post.findByIdAndUpdate(id, {
-            title,
-            body,
-            userId,
-        });
+        const { error, value } = PostSchema.validate({ title, body, userId });
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
+
+        const post = await Post.findByIdAndUpdate(id, value, { new: true });
+
+        if (!post) {
+            return res
+                .status(404)
+                .json({ message: `Aucun post trouvé pour l'id ${id}` });
+        }
+
         return res.status(200).json(post);
     } catch (error) {
         return res.status(500).json({ message: error.message });
