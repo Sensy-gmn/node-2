@@ -1,15 +1,21 @@
 import { Router } from "express";
-import User from "../Models/User.js";
+import {
+    CreateUser,
+    DeleteUser,
+    GetAllUsers,
+    GetUserById,
+    UpdateUser,
+} from "../controllers/UserController.js";
 
 const UserRouter = Router();
 
-UserRouter.get("/", async (req, res) => {
-    try {
-        const users = await User.find();
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+UserRouter.get("/", GetAllUsers);
+UserRouter.get("/:id", GetUserById);
+
+UserRouter.post("/", CreateUser);
+
+UserRouter.put("/:id", UpdateUser);
+
+UserRouter.delete("/:id", DeleteUser);
 
 export default UserRouter;

@@ -2,6 +2,7 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
+import CommentRouter from "./routes/CommentRouter.js";
 import PostsRouter from "./routes/PostsRouter.js";
 import UserRouter from "./routes/UserRouter.js";
 
@@ -34,6 +35,9 @@ app.use("/posts", PostsRouter);
 
 // ---------------- [ USERS ] ---------------- //
 app.use("/users", UserRouter);
+
+// ---------------- [ COMMENTS ] ---------------- //
+app.use("/comments", CommentRouter);
 
 // ---------------- [ SERVER RUN ] ---------------- //
 app.listen(PORT, () => {
