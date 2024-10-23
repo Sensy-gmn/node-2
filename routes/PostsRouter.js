@@ -1,76 +1,77 @@
-import express from "express";
-import { DataPosts } from "../data.js";
-import {
-    addPost,
-    checkPost,
-    checkPostToDelete,
-    deletePost,
-    updatePost,
-} from "../methods.js";
+import { Router } from "express";
+import Post from "../Models/Posts.js";
+import { checkPost, checkPostToDelete } from "../utils/methods.js";
 
-const PostsRouter = express.Router();
+const PostsRouter = Router();
 
-PostsRouter.get("/", (req, res) => {
-    return res.status(200).json(DataPosts);
+PostsRouter.get("/", async (req, res) => {
+    try {
+        const posts = await Post.find();
+        res.status(200).json(posts);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
 // GET posts by id ---------------------------
-PostsRouter.get("/:id", (req, res) => {
+PostsRouter.get("/:id", async (req, res) => {
     const { id } = req.params;
-    let postToFind = DataPosts.find((post) => post.id === parseInt(id));
 
-    if (postToFind) {
-        return res.status(200).json(postToFind);
+    try {
+        const postToFind = await Post.findById(id);
+
+        if (postToFind) {
+            return res.status(200).json(postToFind);
+        }
+
+        return res.status(404).json({ message: `Aucun post pour l'id ${id}` });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    return res.status(404).json({ message: `Aucun post pour l'id ${id}` });
 });
 
 // POST a post -------------------------------
-PostsRouter.post("/", (req, res) => {
+PostsRouter.post("/", async (req, res) => {
     checkPost(req, res);
 
-    const lastPost = DataPosts[DataPosts.length - 1];
-    const newId = lastPost.id + 1;
+    const lastPost = await Post.find().sort({ id: -1 }).limit(1);
 
     const newPost = {
-        userId: 12,
-        id: newId,
         title: req.body.title,
         body: req.body.body,
     };
 
     try {
-        addPost(newPost);
-        res.status(201).json(newPost);
+        const post = await Post.create(newPost);
+        res.status(201).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
 // UPDATE a post -----------------------------
-PostsRouter.put("/:id", (req, res) => {
+PostsRouter.put("/:id", async (req, res) => {
     checkPost(req, res);
 
     const { id } = req.params;
     const updatedPost = req.body;
 
     try {
-        updatePost(id, updatedPost);
-        res.status(200).json({ message: "Post modifié avec succès !" });
+        const post = await Post.findByIdAndUpdate(id, updatedPost);
+        res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
 // DELETE a post -----------------------------
-PostsRouter.delete("/:id", (req, res) => {
+PostsRouter.delete("/:id", async (req, res) => {
     checkPostToDelete(req, res);
     const { id } = req.params;
 
     try {
-        deletePost(id);
-        res.status(200).json({ message: "Post supprimé avec succès !" });
+        const post = await Post.findByIdAndDelete(id);
+        res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

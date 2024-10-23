@@ -1,4 +1,4 @@
-import { DataPosts } from "./data.js";
+import { DataPosts } from "../data.js";
 
 export function addPost(newPost) {
     DataPosts.push(newPost);
