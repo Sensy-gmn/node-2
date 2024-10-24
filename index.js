@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import CommentRouter from "./routes/CommentRouter.js";
 import PostsRouter from "./routes/PostsRouter.js";
 import UserRouter from "./routes/UserRouter.js";
-
+import authRouter from "./routes/authRouter.js";
 const PORT = process.env.PORT;
 const app = express();
 
@@ -38,6 +38,9 @@ app.use("/users", UserRouter);
 
 // ---------------- [ COMMENTS ] ---------------- //
 app.use("/comments", CommentRouter);
+
+// ---------------- [ AUTH ] ---------------- //
+app.use("/auth", authRouter);
 
 // ---------------- [ SERVER RUN ] ---------------- //
 app.listen(PORT, () => {
